@@ -63,17 +63,21 @@ def add_cookie(email, pwd):
 def get_cookie():
     if not os.path.exists("Cookie/"):
         os.makedirs("Cookie")
-    for truc in os.listdir("./Cookie/") :
-        path = os.path.join("./Cookie/", truc)
+    name, pwd = "", ""
+    
+    all_files = os.listdir("./Cookie/") 
+    if all_files:
+        path = os.path.join("./Cookie/", all_files[0])
         with open(path) as fichier:
             line = fichier.readlines()[0]
-            _, name, pwd, last_time = line.split(",")
-            if date.fromisoformat(last_time) + timedelta(days=diff_time_day) > date.today():
-                return name, pwd
-            else :
-                path = os.path.join("./Documents/", email)
+            tete, name, pwd, last_time = line.split(",")
+            if date.fromisoformat(last_time) + timedelta(days=diff_time_day) <= date.today():
                 os.remove(path)
-    return "",""
+        # update last time it has been seen
+        if date.fromisoformat(last_time) + timedelta(days=diff_time_day) > date.today() :
+            with open(path, "w") as fichier:
+                fichier.write(f"{tete},{name},{pwd},{date.today()}")
+    return name, pwd
 
 
 
