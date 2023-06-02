@@ -28,7 +28,7 @@ class Student :
     def __init__(self, email, pwd, isAdmin = False):
         """
         A student can search for an internship by adding filters
-        They can change their password and see their personnal infos
+        They can change their password and see their personnal info
         The admin can initialize the database
         """
 
@@ -114,7 +114,7 @@ class Student :
 "mark": None
         """
 
-        # get all infos
+        # get all info
         cursor = conn.cursor()
         cursor.execute("SELECT country FROM loc;")
         country = set([elem[0] for elem in cursor.fetchall()])
@@ -468,7 +468,10 @@ class Student :
 
         cursor = conn.cursor()
         cursor.execute("SELECT fname, lname, email FROM users WHERE user_id = %s", (current_print[2],))
-        fname, lname, email = cursor.fetchone()
+        try :
+            fname, lname, email = cursor.fetchone()
+        except:
+            pass
         # define the title
         got_window.title(f"Internship from {fname} {lname}")
 
@@ -649,7 +652,7 @@ class Student :
 
         # get the user location
         cursor.execute(f"SELECT country, city, lab, date_start, date_end FROM loc WHERE r_id=%s AND {toDate(date.today().strftime('%Y/%m/%d'))} >= date_start AND (date_end IS NULL OR date_end >= {toDate(date.today().strftime('%Y/%m/%d'))});", (f"{ids[0][0]}",))
-        infos = cursor.fetchall()
+        info = cursor.fetchall()
 
 
         # user id
@@ -666,22 +669,22 @@ class Student :
         personnal_mark = cursor.fetchone()
         cursor.close()
 
-        assert infos, "pas d'info"
-        infos = list(infos[0])
+        assert info, "pas d'info"
+        info = list(info[0])
 
 
         # make a pseudo dictionary
         arg = ["country", "city", "lab", "date_start", "date_end"]
 
-        # print infos
-        for i in range(len(infos)):
+        # print info
+        for i in range(len(info)):
 
             frame = tk.Frame()
             tk.Label(frame, text = arg[i] + " : ", font='Helvetica 13 bold').pack(fill = 'x', side = 'left')
             if arg[i].startswith("date") :
-                infos[i] = getDate(infos[i])
+                info[i] = getDate(info[i])
 
-            tk.Label(frame, text = infos[i] if infos[i] else "??").pack(fill = 'x', side = 'left')
+            tk.Label(frame, text = info[i] if info[i] else "??").pack(fill = 'x', side = 'left')
             canvas.create_window(200, 80 + 30*i, window=frame)
 
 
@@ -717,7 +720,11 @@ class Student :
 
                 cursor.execute('SELECT s_id FROM marks WHERE r_id = %s AND s_id = %s;', (ids[0][0], iduser[0][0]))
 
-                cursor.execute('UPDATE marks SET mark = %s WHERE r_id = %s AND s_id = %s;', (val, ids[0][0], iduser[0][0]))
+                if personnal_mark :
+                    cursor.execute('UPDATE marks SET mark = %s WHERE r_id = %s AND s_id = %s;', (val, ids[0][0], iduser[0][0]))
+
+                else :
+                    cursor.execute('INSERT into marks(r_id, s_id, mark) VALUES (%s,%s, %s);', (ids[0][0], iduser[0][0], val))
 
                 cursor.execute('SELECT AVG(mark) FROM marks WHERE r_id = %s;', (ids[0][0],))
                 new_mark = cursor.fetchall()
@@ -743,7 +750,3 @@ class Student :
 
 if __name__ == "__main__" :
     Student("admin@admin.fr", "admin", True)
-
-
-
-
