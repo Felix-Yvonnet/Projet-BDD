@@ -151,7 +151,7 @@ class Researcher:
 
             # Title unique key
             cursor.execute("SELECT int_id FROM internships WHERE title = %s", (title,))
-            rez = cursor.fetchone()[0]
+            rez = cursor.fetchone()
 
             cursor.execute("INSERT INTO i_tops(i_id, t_id) VALUES(%s, %s) ON CONFLICT DO NOTHING", (rez, topics[topic]))
 
@@ -161,7 +161,7 @@ class Researcher:
             entry_title.delete(0, tk.END)
             entry_web.delete(0, tk.END)
             entry_desc.delete("1.0", tk.END)
-            entry_topics.delelte(0, tk.END)
+            entry_topics.delete(0, tk.END)
 
 
         frame = tk.Frame()
@@ -359,13 +359,13 @@ class Researcher:
                         if start :
                             if end or end is None:
                                 cursor.execute('UPDATE loc SET country = %s, city = %s, lab = %s, date_start = %s, date_end = %s WHERE r_id = %s;', (country, city, lab, start, end, u_id))
-                                error_label.config(text='infos updated', fg='green')
+                                error_label.config(text='info updated', fg='green')
                             else :
                                 error_label.config(text='wrong type of date for end', fg='red')
                         else :
                             if end or end is None:
                                 cursor.execute('UPDATE loc SET country = %s, city = %s, lab = %s, date_start = %s, date_end = %s WHERE r_id = %s;', (country, city, lab, toDate(date.today().strftime('%Y/%m/%d')), end, u_id))
-                                error_label.config(text='infos updated', fg='green')
+                                error_label.config(text='info updated', fg='green')
                             else :
                                 error_label.config(text='wrong type of date for end', fg='red')
                     else :
