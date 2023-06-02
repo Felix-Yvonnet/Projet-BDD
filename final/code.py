@@ -3,7 +3,6 @@
 from tkinter import *
 import psycopg2
 import ttkbootstrap as ttk
-import re
 
 from os import chdir
 chdir(r"C:\Users\felix\Desktop\ENS\Cours\L3\BDD\Projet_BDD\Code Projet\final")
@@ -83,7 +82,10 @@ def identification_window():
 
         # Use parameterized SQL queries to avoid SQL injections (it's what they said... not sure it's that secure)
         cursor.execute('SELECT role, user_id FROM users WHERE email=%s AND password=%s;', (email, password))
-        role, id = cursor.fetchone()
+        try:
+            role, id = cursor.fetchone()
+        except :
+            error_label.config(text='Invalid email or password', fg='red')
         cursor.close()
         print(role)
 
@@ -123,11 +125,11 @@ def identification_window():
             error_label.config(text=f'User already exist as {role[0]}', fg='red')
 
         else :
-            if not is_valid_email(email) or (type != "researcher" and not email.endswith('.ens-paris-saclay.fr')) :
+            if not is_valid_email(email) or (type != "researcher" and not email.endswith('@ens-paris-saclay.fr')) :
                 error_label.config(text='Invalid email, please enter your ens address', fg='red')
             else :
                 if len(password) < 8 :
-                    error_label.config(text='your password is too weak, it must be at least 8 characters long', fg='red')
+                    error_label.config(text='your password is too weak,\nit must be at least 8 characters long', fg='red')
                 else :
                     if not type :
                         error_label.config(text='please complete your role', fg='red')
@@ -136,7 +138,8 @@ def identification_window():
 
                         cursor.close()
                         root.destroy()
-                        Student(email, password)
+                        if type == "student": Student(email, password)
+                        else : Researcher(email, password)
 
 
 
